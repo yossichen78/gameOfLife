@@ -1,0 +1,38 @@
+<html>
+<head>
+	<link href="gameOfLife.css" type="text/css" rel="stylesheet" />
+	 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container" ng-app="gameOfLife" ng-controller="gameCtrl" ng-cloak>
+		<div class="row">
+				<h1>The Amazing Game Of Life!</h1>
+		</div>
+		<div class="row">
+			<div class="col-md-2">
+				<h2>Instructions:</h2>
+				<p>
+					When the game is paused you can place living cells on the board. Press "Randomize" to add cells at random positions. When you're ready - Press "Play" to see what happens...
+				</p>
+			    <button class="btn btn-primary" ng-click="resetGame()">Reset Game</button>
+				<div ng-show=1>Rows: {{rows}}, Cols: {{cols}}</div>
+				<button class="btn btn-primary" ng-click="newGame()">Change Parameters</button><br>
+				<button class="btn btn-primary" ng-click="randomize()">Randomize</button><br>
+			    <button class="btn btn-primary" ng-click="play()">{{gameOn ? "Pause" : "Play"}}</button>
+			</div>
+			<div class="col-md-10">
+				<div id="board">
+					<div class="boardRow" ng-repeat="row in board">
+						<span id="{{$parent.$index}}-{{$index}}" class="cell" ng-class="{full: cell}" ng-repeat="cell in row track by $index" ng-click="mark($parent.$index,$index)">
+						</span>
+					</div>
+				</div>
+			</div>	
+			<!-- <div class="row">
+			   
+			</div> -->
+		</div>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+	<script src="gameOfLife.js"></script>
+<body>
