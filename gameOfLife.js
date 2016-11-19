@@ -8,18 +8,9 @@ app.controller("gameCtrl", function($scope) {
     $scope.gameOn = false;
     $scope.tic = 0;
     $scope.cells = 0;
-    $scope.rows = 200;
-    $scope.cols = 200;
-    var cellSize = 4;
-    var timeInterval = 1;
-    var numOfCells = 0;
-    var tic = 0;
-    /* livingCells and nextTicCells hold a list of all the living cells in this way: 
-    a cell which is located at coordinate {3,4} will be represented as 
-    livingCells["3"]["4"] = true;
-    */
-    var livingCells = {};
-    var nextTicCells = {};
+    $scope.rows = 200, $scope.cols = 200;
+    var cellSize = 4, timeInterval = 1, numOfCells = 0, tic = 0;
+    var livingCells = {}, nextTicCells = {};
 
     // set canvas:
 
@@ -28,10 +19,10 @@ app.controller("gameCtrl", function($scope) {
     var w = canvas.width;
     var h = canvas.height;
     canvas.addEventListener("click", function (e) {
-        mark(e.layerX,e.layerY)
+        mark(e.layerX,e.layerY);
     }, false);
 
-    // this will help calculate the neighbors of a certain cell
+    // this helper array will help find neighbors of a certain cell
     var neighborsArray = [[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1]];
 
     function unmarkCell(row,col,arr){
@@ -50,25 +41,27 @@ app.controller("gameCtrl", function($scope) {
     var makeMove = function(){
         tic++;
         nextTicCells = {};
-        for (var a in livingCells){
-            for (var b in livingCells[a]){
+        for (var a in livingCells){  // check every row with living cells
+            for (var b in livingCells[a]){ // check every living cell in row
                 var row = parseInt(a);
                 var col = parseInt(b);
-                for (var i = 0; i < 8; i++){
-                    childRow = parseInt(a) + neighborsArray[i][0];
-                    childCol = parseInt(b) + neighborsArray[i][1];
-                    if (childRow >= 0 && childRow < $scope.rows &&
+                for (var i = 0; i < 8; i++){ // check every neighbor
+                    childRow = row + neighborsArray[i][0];
+                    childCol = col + neighborsArray[i][1];
+                    if (childRow >= 0 && childRow < $scope.rows && // check neighbours are inside board
                         childCol >= 0 && childCol < $scope.cols){
-                        if((!livingCells[childRow] || (livingCells[childRow] && !livingCells[childRow][childCol])) &&
-                            (!nextTicCells[childRow] || (nextTicCells[childRow] && !nextTicCells[childRow][childCol]))){
+                        if((!livingCells[childRow] || 
+                            (livingCells[childRow] && !livingCells[childRow][childCol])) && // neighbor is not in living cells
+                            (!nextTicCells[childRow] || 
+                            (nextTicCells[childRow] && !nextTicCells[childRow][childCol]))){ // neighbor is checked only once
                             if (checkSurroundingCells(childRow,childCol) == 3){
                                 markCell(childRow,childCol,nextTicCells);
                                 numOfCells++;
                             }
                         }
                     }
-                }
-                var n = checkSurroundingCells(row,col);
+                } 
+                var n = checkSurroundingCells(row,col); // check if the cell itself 
                 if (n == 2 || n == 3){
                     markCell(row,col,nextTicCells); //cell stays
                 } else {  //clear cell from board
@@ -81,6 +74,7 @@ app.controller("gameCtrl", function($scope) {
         livingCells = nextTicCells;
     }
 
+    // checkSurroundingCells returns the number of living neighbors to a certain cell
     var checkSurroundingCells = function(row,col){
         var count = 0, rowOffset, colOffset;
         for (var i = 0; i < 8; i++){
@@ -97,8 +91,8 @@ app.controller("gameCtrl", function($scope) {
     }
 
     var mark = function(row,col){ 
-        row = (row - row % cellSize)/cellSize
-        col = (col - col % cellSize)/cellSize
+        row = (row - row % cellSize)/cellSize;
+        col = (col - col % cellSize)/cellSize;
         if (!$scope.gameOn){
             if (livingCells[row] && livingCells[row][col]) {
                 numOfCells--;
