@@ -17,12 +17,15 @@
 			    <button class="btn btn-primary" ng-click="resetGame()">Reset Game</button>
 				<div ng-show=1>Rows: {{rows}}, Cols: {{cols}}</div>
 				<button class="btn btn-primary" ng-click="randomize()">Randomize</button><br>
-				<div ng-show=1>Tic: {{tic}}, Cells: {{cells}}</div>
 			    <button class="btn btn-primary" ng-click="play()">{{gameOn ? "Pause" : "Play"}}</button>
-			    <button ng-show=!gameOn class="btn btn-primary" ng-click="step()">Step</button>
 			</div>
 			<div class="col-md-10">
-				<canvas id="board" width=800 height=800></canvas>
+				<div id="board">
+					<div class="boardRow" ng-repeat="row in getNumber(rows) track by $index">
+						<span id="{{$parent.$index}}-{{$index}}" class="cell" ng-class="{full: cell}" ng-repeat="cell in getNumber(cols) track by $index" ng-click="mark($parent.$index,$index)">
+						</span>
+					</div>
+				</div>
 			</div>	
 			<!-- <div class="row">
 			   

@@ -1,77 +1,81 @@
-
+"use-strict"
 var app = angular.module("gameOfLife", []); 
 
-app.controller("gameCtrl", function($scope,$interval) {
-    $scope.board = [];
-    $scope.gameOn = false;
-    $scope.rows = 100;
-    $scope.cols = 100;
-    $scope.timeInterval = 10;
+app.controller("gameCtrl", function($scope) {
 
+    //set game parameters: 
+
+    $scope.gameOn = false;
+    $scope.tic = 0;
+    $scope.cells = 0;
+    $scope.rows = 200;
+    $scope.cols = 200;
+    var cellSize = 4;
+    timeInterval = 1;
+    var numOfCells = 0;
+    var tic = 0;
     var livingCells = {};
     var nextTicCells = {};
-    var livingCellsNum = 0;
 
-    var promise;
+    // set canvas:
+
+    var canvas = document.getElementById('board');
+    var ctx = canvas.getContext("2d");
+    var w = canvas.width;
+    var h = canvas.height;
+    canvas.addEventListener("click", function (e) {
+        mark(e.layerX,e.layerY)
+    }, false);
+
     // this will help calculate the neighbors of a certain cell
     var neighborsArray = [[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1]];
 
-    // initialize board
-    initBoard = function(){
-        $scope.board = [];  
-        livingCells = []
-        livingCellsNum = 0;
-        for (var i = 0; i < $scope.rows; i++){
-            $scope.board.push([]);  
-            for (var j = 0; j < $scope.cols; j++){
-                $scope.board[i].push(false);
-            }
-        }
-    }
-
     function unmarkCell(row,col,arr){
-        delete arr[row+"-"+col];
-        livingCellsNum--;
-        angular.element(document.getElementById(row+'-'+col)).removeClass('full');
-    }
+        delete arr[row][col];
+        ctx.fillStyle = "white";
+        ctx.fillRect(row*cellSize, col*cellSize, cellSize, cellSize);
+   }
 
     function markCell(row,col,arr){
-        arr[row+"-"+col] = true;
-        livingCellsNum++;
-        angular.element(document.getElementById(row+'-'+col)).addClass('full');
+        if (!arr[row]) arr[row] = {}
+        arr[row][col] = true;
+        ctx.fillStyle = "black";
+        ctx.fillRect(row*cellSize, col*cellSize, cellSize, cellSize);
     }
 
     var makeMove = function(){
-        livingCellsNum = 0;
+        tic++;
         nextTicCells = {};
-        for (a in livingCells){
-            var coor = a.split("-");
-            var counter = 0;
-            var row = parseInt(coor[0]);
-            var col = parseInt(coor[1]);
-            for (var i = 0; i < 8; i++){
-                childRow = row + neighborsArray[i][0];
-                childCol = col + neighborsArray[i][1];
-                if (childRow >= 0 && childRow < $scope.rows &&
-                    childCol >= 0 && childCol < $scope.cols){
-                    if(!livingCells[childRow+'-'+childCol] && !nextTicCells[childRow+'-'+childCol]){
-                        if (checkSurroundingCells(childRow,childCol) == 3){
-                            markCell(childRow,childCol,nextTicCells);
+        for (var a in livingCells){
+            for (var b in livingCells[a]){
+                var row = parseInt(a);
+                var col = parseInt(b);
+                for (var i = 0; i < 8; i++){
+                    childRow = parseInt(a) + neighborsArray[i][0];
+                    childCol = parseInt(b) + neighborsArray[i][1];
+                    if (childRow >= 0 && childRow < $scope.rows &&
+                        childCol >= 0 && childCol < $scope.cols){
+                        if((!livingCells[childRow] || (livingCells[childRow] && !livingCells[childRow][childCol])) &&
+                            (!nextTicCells[childRow] || (nextTicCells[childRow] && !nextTicCells[childRow][childCol]))){
+                            if (checkSurroundingCells(childRow,childCol) == 3){
+                                markCell(childRow,childCol,nextTicCells);
+                                numOfCells++;
+                            }
                         }
                     }
                 }
-            }
-            var n = checkSurroundingCells(row,col);
-            if (n == 2 || n == 3){
-                markCell(row,col,nextTicCells);
-            } else {
-                angular.element(document.getElementById(row+'-'+col)).removeClass('full')
+                var n = checkSurroundingCells(row,col);
+                if (n == 2 || n == 3){
+                    markCell(row,col,nextTicCells); //cell stays
+                } else {  //clear cell from board
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(row*cellSize, col*cellSize, cellSize, cellSize);
+                    numOfCells--;
+                }
             }
         }
         livingCells = nextTicCells;
     }
-
-
 
     var checkSurroundingCells = function(row,col){
         var count = 0, rowOffset, colOffset;
@@ -80,7 +84,7 @@ app.controller("gameCtrl", function($scope,$interval) {
             colOffset = col + neighborsArray[i][1];
             if (rowOffset >= 0 && rowOffset < $scope.rows &&
                 colOffset >= 0 && colOffset < $scope.cols){
-                if (livingCells[rowOffset+"-"+colOffset]){
+                if (livingCells[rowOffset] && livingCells[rowOffset][colOffset]){
                     count++;
                 }
             }
@@ -88,46 +92,69 @@ app.controller("gameCtrl", function($scope,$interval) {
         return count;
     }
 
-    $scope.mark = function(row,col){ 
+    var mark = function(row,col){ 
+        row = (row - row % cellSize)/cellSize
+        col = (col - col % cellSize)/cellSize
         if (!$scope.gameOn){
-            if (livingCells[row+"-"+col]) {
+            if (livingCells[row] && livingCells[row][col]) {
+                numOfCells--;
                 unmarkCell(row,col,livingCells);
             }
             else {
+                numOfCells++;
                 markCell(row,col,livingCells);
             }
         }
     }
 
+    // UX buttons:
+
     $scope.play = function(row,cell){ 
-        if ($scope.gameOn){
+        if ($scope.gameOn){ //pause
+            $scope.tic = tic;
+            $scope.cells = numOfCells;
             $scope.gameOn = false;
             if (promise){
-                $interval.cancel(promise);
+                clearInterval(promise);
             }
-        } else {
+        } else { //start game
             $scope.gameOn = true;
-            promise = $interval(function(){
+            promise = setInterval(function(){
                 makeMove();
-            }, $scope.timeInterval);
+            }, timeInterval);
         }
     }
 
     $scope.randomize = function(row,cell){ 
         for (var i = 0; i < $scope.rows; i++){
             for (var j = 0; j < $scope.cols; j++){
-                if (Math.random() >= 0.5) markCell(i,j,livingCells)
+                if (Math.random() >= 0.5) {
+                    numOfCells++;
+                    markCell(i,j,livingCells)
+                }
             }
         }
     }
 
+    $scope.step = function(row,cell){ 
+        makeMove();
+        $scope.tic = tic;
+        $scope.cells = numOfCells;
+    }
+
     $scope.resetGame = function(){
+        cells = 0;
+        tic = 0;
+        $scope.tic = 0;
+        $scope.cells = 0;
         $scope.gameOn = false;
-        $scope.board = [];
-        initBoard();
+        livingCells = {}
+        ctx.closePath(); 
+        ctx.beginPath(); 
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, w, h);
     } 
 
-    initBoard();
+    $scope.resetGame();
     
 });
-
