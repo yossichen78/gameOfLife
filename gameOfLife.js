@@ -10,6 +10,7 @@ app.controller("gameCtrl", function($scope) {
     $scope.rows = 200, $scope.cols = 200;
     var cellSize = 4, timeInterval = 1, numOfCells = 0, tic = 0;
     var livingCells = {}, nextTicCells = {};
+    var promise;
 
     // set canvas:
 
@@ -143,13 +144,15 @@ app.controller("gameCtrl", function($scope) {
     }
 
     $scope.resetGame = function(){
+        if (promise){
+            clearInterval(promise);
+        }
         numOfCells = 0;
         tic = 0;
         $scope.tic = 0;
         $scope.cells = 0;
         $scope.gameOn = false;
         livingCells = {}
-        ctx.closePath(); 
         ctx.beginPath(); 
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, w, h);
