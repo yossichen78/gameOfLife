@@ -11,9 +11,13 @@ app.controller("gameCtrl", function($scope) {
     $scope.rows = 200;
     $scope.cols = 200;
     var cellSize = 4;
-    timeInterval = 1;
+    var timeInterval = 1;
     var numOfCells = 0;
     var tic = 0;
+    /* livingCells and nextTicCells hold a list of all the living cells in this way: 
+    a cell which is located at coordinate {3,4} will be represented as 
+    livingCells["3"]["4"] = true;
+    */
     var livingCells = {};
     var nextTicCells = {};
 
@@ -107,7 +111,7 @@ app.controller("gameCtrl", function($scope) {
         }
     }
 
-    // UX buttons:
+    // Page UI:
 
     $scope.play = function(row,cell){ 
         if ($scope.gameOn){ //pause
@@ -126,6 +130,7 @@ app.controller("gameCtrl", function($scope) {
     }
 
     $scope.randomize = function(row,cell){ 
+        $scope.resetGame();
         for (var i = 0; i < $scope.rows; i++){
             for (var j = 0; j < $scope.cols; j++){
                 if (Math.random() >= 0.5) {
@@ -143,7 +148,7 @@ app.controller("gameCtrl", function($scope) {
     }
 
     $scope.resetGame = function(){
-        cells = 0;
+        numOfCells = 0;
         tic = 0;
         $scope.tic = 0;
         $scope.cells = 0;

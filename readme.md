@@ -1,9 +1,13 @@
 #Game Of Life 3rd Implementation
 
+Instructions: 
+Download css/html/js files, open gameOfLife.html in browser
+
 This is the fastest implementation so far.
 Improvements:
 
-- Use html canvas instead of updating the DOM with angularJS
+- Use html canvas instead of updating the DOM with angularJS. Angular is only used for the layout + game controls
+- To speed things up the current number of tics/cells is displayed only when the game is not running (when paused, or when using "Step")
 - The living cells list is now 2d, so search is easier. 
 
 The slower versions are in the other folders.
