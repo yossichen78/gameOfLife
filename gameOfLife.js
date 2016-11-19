@@ -17,18 +17,20 @@ app.controller("gameCtrl", function($scope) {
     var ctx = canvas.getContext("2d");
     var w = canvas.width;
     var h = canvas.height;
-    canvas.addEventListener("click", function (e) {
+
+    // manually placing/removing living cells
+    canvas.addEventListener("click", function (e) { 
         mark(e.layerX,e.layerY);
     }, false);
 
-    // this helper array will help find neighbors of a certain cell
+    // helper array to locate neighbors of a certain cell
     var neighborsArray = [[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1]];
 
     function unmarkCell(row,col,arr){
         delete arr[row][col];
         ctx.fillStyle = "white";
         ctx.fillRect(row*cellSize, col*cellSize, cellSize, cellSize);
-   }
+    }
 
     function markCell(row,col,arr){
         if (!arr[row]) arr[row] = {}
