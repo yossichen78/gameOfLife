@@ -1,4 +1,3 @@
-"use-strict"
 var app = angular.module("gameOfLife", []); 
 
 app.controller("gameCtrl", function($scope) {
