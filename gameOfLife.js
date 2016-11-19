@@ -76,7 +76,7 @@ app.controller("gameCtrl", function($scope) {
         livingCells = nextTicCells;
     }
 
-    // checkSurroundingCells returns the number of living neighbors to a certain cell
+    // checkSurroundingCells returns the number of living neighbors for a certain cell
     var checkSurroundingCells = function(row,col){
         var count = 0, rowOffset, colOffset;
         for (var i = 0; i < 8; i++){
